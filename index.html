@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorting Algorithm Visualizer</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <h2>SortViz Pro</h2>
+        </div>
+
+        <div class="nav-actions">
+            <button id="themeToggle">🌙 Dark Mode</button>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <h1>Sorting Algorithm Visualizer</h1>
+
+        <p>
+            Compare Bubble Sort and Merge Sort visually,
+            analyze performance metrics, and understand
+            algorithm complexity through interactive animations.
+        </p>
+
+        <div class="controls">
+
+            <input
+                type="text"
+                id="inputArray"
+                placeholder="Example: 8,3,15,2,7,12"
+            >
+
+            <button id="generateBtn">
+                Generate Random Array
+            </button>
+
+            <button id="bubbleBtn">
+                Visualize Bubble Sort
+            </button>
+
+            <button id="mergeBtn">
+                Visualize Merge Sort
+            </button>
+
+            <button id="resetBtn">
+                Reset
+            </button>
+
+        </div>
+    </section>
+
+    <!-- Statistics -->
+    <section class="stats-section">
+
+        <div class="stat-card">
+            <h3>Comparisons</h3>
+            <p id="comparisonCount">0</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Swaps</h3>
+            <p id="swapCount">0</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Execution Time</h3>
+            <p id="executionTime">0 ms</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Array Size</h3>
+            <p id="arraySize">0</p>
+        </div>
+
+    </section>
+
+    <!-- Visualization -->
+    <section class="visualization-section">
+
+        <div class="algorithm-panel">
+
+            <h2>Bubble Sort Visualization</h2>
+
+            <div
+                id="bubbleContainer"
+                class="array-container"
+            ></div>
+
+        </div>
+
+        <div class="algorithm-panel">
+
+            <h2>Merge Sort Visualization</h2>
+
+            <div
+                id="mergeContainer"
+                class="array-container"
+            ></div>
+
+        </div>
+
+    </section>
+
+    <!-- Results -->
+    <section class="results-section">
+
+        <div class="result-card">
+
+            <h2>Bubble Sort Results</h2>
+
+            <p id="bubbleResult">
+                Waiting for visualization...
+            </p>
+
+        </div>
+
+        <div class="result-card">
+
+            <h2>Merge Sort Results</h2>
+
+            <p id="mergeResult">
+                Waiting for visualization...
+            </p>
+
+        </div>
+
+    </section>
+
+    <!-- Complexity Table -->
+    <section class="complexity-section">
+
+        <h2>Complexity Comparison</h2>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Algorithm</th>
+                    <th>Best</th>
+                    <th>Average</th>
+                    <th>Worst</th>
+                    <th>Space</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr>
+                    <td>Bubble Sort</td>
+                    <td>O(n)</td>
+                    <td>O(n²)</td>
+                    <td>O(n²)</td>
+                    <td>O(1)</td>
+                </tr>
+
+                <tr>
+                    <td>Merge Sort</td>
+                    <td>O(n log n)</td>
+                    <td>O(n log n)</td>
+                    <td>O(n log n)</td>
+                    <td>O(n)</td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </section>
+
+    <!-- Explanation -->
+    <section class="explanation-section">
+
+        <div class="info-card">
+
+            <h2>Bubble Sort</h2>
+
+            <p>
+                Bubble Sort repeatedly compares adjacent
+                elements and swaps them if they are in the
+                wrong order. It is simple but inefficient
+                for large datasets.
+            </p>
+
+        </div>
+
+        <div class="info-card">
+
+            <h2>Merge Sort</h2>
+
+            <p>
+                Merge Sort uses divide-and-conquer.
+                It recursively splits the array and merges
+                sorted halves, making it significantly
+                faster for large inputs.
+            </p>
+
+        </div>
+
+    </section>
+
+    <!-- Footer -->
+    <footer>
+
+        <h3>Sorting Algorithm Visualizer</h3>
+
+        <p>
+            Built with HTML, CSS and JavaScript
+        </p>
+
+        <p>
+            Bubble Sort vs Merge Sort Performance Analysis
+        </p>
+
+    </footer>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
