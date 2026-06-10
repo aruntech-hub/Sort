@@ -15,7 +15,7 @@
     <!-- Navbar -->
     <nav class="navbar">
         <div class="logo">
-            <h2>SortViz Pro</h2>
+            <h2>Sorting Analyser</h2>
         </div>
 
         <div class="nav-actions">
@@ -28,9 +28,7 @@
         <h1>Sorting Algorithm Visualizer</h1>
 
         <p>
-            Compare Bubble Sort and Merge Sort visually,
-            analyze performance metrics, and understand
-            algorithm complexity through interactive animations.
+            Compare Bubble Sort and Merge Sort visually
         </p>
 
         <div class="controls">
@@ -41,16 +39,19 @@
                 placeholder="Example: 8,3,15,2,7,12"
             >
 
+            <select id="rangeSelect" aria-label="Value range">
+                <option value="100">Small (1-100)</option>
+                <option value="1000">Medium (1-1000)</option>
+                <option value="10000" selected>Large (1-10000)</option>
+                <option value="custom">Custom...</option>
+            </select>
+
             <button id="generateBtn">
                 Generate Random Array
             </button>
 
-            <button id="bubbleBtn">
-                Visualize Bubble Sort
-            </button>
-
-            <button id="mergeBtn">
-                Visualize Merge Sort
+            <button id="combinedBtn">
+                Run Combined Sort
             </button>
 
             <button id="resetBtn">
@@ -85,33 +86,6 @@
 
     </section>
 
-    <!-- Visualization -->
-    <section class="visualization-section">
-
-        <div class="algorithm-panel">
-
-            <h2>Bubble Sort Visualization</h2>
-
-            <div
-                id="bubbleContainer"
-                class="array-container"
-            ></div>
-
-        </div>
-
-        <div class="algorithm-panel">
-
-            <h2>Merge Sort Visualization</h2>
-
-            <div
-                id="mergeContainer"
-                class="array-container"
-            ></div>
-
-        </div>
-
-    </section>
-
     <!-- Results -->
     <section class="results-section">
 
@@ -120,8 +94,9 @@
             <h2>Bubble Sort Results</h2>
 
             <p id="bubbleResult">
-                Waiting for visualization...
+                Waiting for results...
             </p>
+            <p class="time-taken">Time Taken: <span id="bubbleTime">0.000 ms</span></p>
 
         </div>
 
@@ -130,8 +105,17 @@
             <h2>Merge Sort Results</h2>
 
             <p id="mergeResult">
-                Waiting for visualization...
+                Waiting for results...
             </p>
+            <p class="time-taken">Time Taken: <span id="mergeTime">0.000 ms</span></p>
+
+        </div>
+
+        <div class="result-card" style="grid-column:1/-1; text-align:center;">
+
+            <h2>Best Sort</h2>
+
+            <p id="bestSort">Waiting for comparison...</p>
 
         </div>
 
@@ -177,51 +161,11 @@
         </table>
 
     </section>
-
-    <!-- Explanation -->
-    <section class="explanation-section">
-
-        <div class="info-card">
-
-            <h2>Bubble Sort</h2>
-
-            <p>
-                Bubble Sort repeatedly compares adjacent
-                elements and swaps them if they are in the
-                wrong order. It is simple but inefficient
-                for large datasets.
-            </p>
-
-        </div>
-
-        <div class="info-card">
-
-            <h2>Merge Sort</h2>
-
-            <p>
-                Merge Sort uses divide-and-conquer.
-                It recursively splits the array and merges
-                sorted halves, making it significantly
-                faster for large inputs.
-            </p>
-
-        </div>
-
-    </section>
-
     <!-- Footer -->
     <footer>
-
-        <h3>Sorting Algorithm Visualizer</h3>
-
-        <p>
-            Built with HTML, CSS and JavaScript
-        </p>
-
         <p>
             Bubble Sort vs Merge Sort Performance Analysis
         </p>
-
     </footer>
 
     <script src="script.js"></script>
