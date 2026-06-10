@@ -1,402 +1,225 @@
-// ==========================
-// ELEMENTS
-// ==========================
+// main.js - combined sorting logic
+document.addEventListener("DOMContentLoaded", () => {
+  const inputEl = document.getElementById("inputArray");
+  const generateBtn = document.getElementById("generateBtn");
+  const combinedBtn = document.getElementById("combinedBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const comparisonCount = document.getElementById("comparisonCount");
+  const swapCount = document.getElementById("swapCount");
+  const executionTime = document.getElementById("executionTime");
+  const arraySize = document.getElementById("arraySize");
+  const bubbleResult = document.getElementById("bubbleResult");
+  const mergeResult = document.getElementById("mergeResult");
+  const rangeSelect = document.getElementById("rangeSelect");
+  const bubbleTimeEl = document.getElementById("bubbleTime");
+  const mergeTimeEl = document.getElementById("mergeTime");
+  const themeToggle = document.getElementById("themeToggle");
 
-const inputArray = document.getElementById("inputArray");
-
-const generateBtn = document.getElementById("generateBtn");
-const bubbleBtn = document.getElementById("bubbleBtn");
-const mergeBtn = document.getElementById("mergeBtn");
-const resetBtn = document.getElementById("resetBtn");
-const themeToggle = document.getElementById("themeToggle");
-
-const bubbleContainer = document.getElementById("bubbleContainer");
-const mergeContainer = document.getElementById("mergeContainer");
-
-const comparisonCount = document.getElementById("comparisonCount");
-const swapCount = document.getElementById("swapCount");
-const executionTime = document.getElementById("executionTime");
-const arraySize = document.getElementById("arraySize");
-
-const bubbleResult = document.getElementById("bubbleResult");
-const mergeResult = document.getElementById("mergeResult");
-
-// ==========================
-// GLOBALS
-// ==========================
-
-let currentArray = [];
-let comparisons = 0;
-let swaps = 0;
-
-// ==========================
-// HELPERS
-// ==========================
-
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function randomNumber(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-// ==========================
-// CREATE RANDOM ARRAY
-// ==========================
-
-function generateRandomArray(size = 20) {
-    currentArray = [];
-
-    for (let i = 0; i < size; i++) {
-        currentArray.push(randomNumber(20, 250));
+  // Theme handling (dark/light) with persistence
+  function applyTheme(theme) {
+    const root = document.documentElement;
+    const isLight = theme === "light";
+    // apply class and attribute for broad compatibility
+    root.classList.toggle("light-mode", isLight);
+    try { root.setAttribute('data-theme', theme); } catch (e) {}
+    if (themeToggle) {
+      themeToggle.textContent = isLight ? "🌙 Dark Mode" : "☀️ Light Mode";
     }
+    try { localStorage.setItem("site-theme", theme); } catch (e) {}
+  }
 
-    inputArray.value = currentArray.join(",");
-    renderBars(currentArray, bubbleContainer);
-    renderBars(currentArray, mergeContainer);
+  // initialize theme from localStorage (default: dark)
+  const savedTheme =
+    (function () {
+      try {
+        return localStorage.getItem("site-theme");
+      } catch (e) {
+        return null;
+      }
+    })() || "dark";
+  applyTheme(savedTheme);
 
-    arraySize.textContent = currentArray.length;
-}
-
-// ==========================
-// RENDER BARS
-// ==========================
-
-function renderBars(arr, container) {
-
-    container.innerHTML = "";
-
-    arr.forEach(value => {
-
-        const bar = document.createElement("div");
-
-        bar.classList.add("bar");
-
-        bar.style.height = `${value}px`;
-
-        container.appendChild(bar);
+  if (themeToggle) {
+    themeToggle.addEventListener("click", () => {
+      const current = document.documentElement.classList.contains("light-mode")
+        ? "light"
+        : "dark";
+      const next = current === "light" ? "dark" : "light";
+      applyTheme(next);
     });
-}
+  }
 
-// ==========================
-// GET ARRAY
-// ==========================
+  function parseInput() {
+    const v = inputEl.value.trim();
+    if (!v) return [];
+    return v
+      .split(",")
+      .map((s) => Number(s.trim()))
+      .filter((n) => !Number.isNaN(n));
+  }
 
-function getInputArray() {
+  function genRandomArray(n = 10, max = 10000) {
+    return Array.from({ length: n }, () => Math.floor(Math.random() * max) + 1);
+  }
 
-    const value = inputArray.value.trim();
-
-    if (!value) {
-        alert("Please enter numbers.");
-        return null;
+  generateBtn.addEventListener("click", () => {
+    const size = Math.min(
+      10000,
+      parseInt(prompt("Array size (max 10000)", "10") || "10", 10) || 10,
+    );
+    let maxVal = 10000;
+    if (rangeSelect) {
+      if (rangeSelect.value === "custom") {
+        maxVal = Math.min(
+          10000,
+          Math.max(
+            1,
+            parseInt(prompt("Max value (1-10000)", "100") || "100", 10),
+          ),
+        );
+      } else {
+        maxVal = parseInt(rangeSelect.value, 10) || 10000;
+      }
     }
+    const arr = genRandomArray(size, maxVal);
+    inputEl.value = arr.join(",");
+    arraySize.textContent = size;
+  });
 
-    const arr = value
-        .split(",")
-        .map(item => Number(item.trim()));
-
-    if (arr.some(isNaN)) {
-        alert("Invalid input.");
-        return null;
-    }
-
-    return arr;
-}
-
-// ==========================
-// RESET STATS
-// ==========================
-
-function resetStats() {
-
-    comparisons = 0;
-    swaps = 0;
-
-    comparisonCount.textContent = 0;
-    swapCount.textContent = 0;
+  resetBtn.addEventListener("click", () => {
+    inputEl.value = "";
+    comparisonCount.textContent = "0";
+    swapCount.textContent = "0";
     executionTime.textContent = "0 ms";
-}
+    arraySize.textContent = "0";
+    bubbleResult.textContent = "Waiting for results...";
+    mergeResult.textContent = "Waiting for results...";
+  });
 
-// ==========================
-// UPDATE STATS
-// ==========================
-
-function updateStats() {
-
-    comparisonCount.textContent = comparisons;
-    swapCount.textContent = swaps;
-}
-
-// ==========================
-// BUBBLE SORT VISUALIZATION
-// ==========================
-
-async function visualizeBubbleSort() {
-
-    const arr = getInputArray();
-
-    if (!arr) return;
-
-    resetStats();
-
-    renderBars(arr, bubbleContainer);
-
-    const bars = bubbleContainer.children;
-
+  function bubbleSort(a) {
+    const arr = a.slice();
+    let comps = 0,
+      swaps = 0;
     const start = performance.now();
-
     for (let i = 0; i < arr.length; i++) {
-
-        for (let j = 0; j < arr.length - i - 1; j++) {
-
-            comparisons++;
-
-            bars[j].classList.add("active");
-            bars[j + 1].classList.add("active");
-
-            updateStats();
-
-            await sleep(120);
-
-            if (arr[j] > arr[j + 1]) {
-
-                swaps++;
-
-                [arr[j], arr[j + 1]] =
-                [arr[j + 1], arr[j]];
-
-                bars[j].style.height =
-                    `${arr[j]}px`;
-
-                bars[j + 1].style.height =
-                    `${arr[j + 1]}px`;
-
-                bars[j].classList.add("swap");
-                bars[j + 1].classList.add("swap");
-
-                updateStats();
-            }
-
-            await sleep(100);
-
-            bars[j].classList.remove(
-                "active",
-                "swap"
-            );
-
-            bars[j + 1].classList.remove(
-                "active",
-                "swap"
-            );
+      for (let j = 0; j < arr.length - 1 - i; j++) {
+        comps++;
+        if (arr[j] > arr[j + 1]) {
+          swaps++;
+          const t = arr[j];
+          arr[j] = arr[j + 1];
+          arr[j + 1] = t;
         }
-
-        bars[arr.length - i - 1]
-            .classList.add("sorted");
+      }
     }
+    const time = performance.now() - start;
+    return { sorted: arr, comparisons: comps, swaps, time };
+  }
 
-    const end = performance.now();
-
-    executionTime.textContent =
-        `${(end - start).toFixed(2)} ms`;
-
-    bubbleResult.innerHTML = `
-        <strong>Sorted Array:</strong><br>
-        ${arr.join(", ")}<br><br>
-
-        <strong>Complexity:</strong> O(n²)<br>
-        <strong>Comparisons:</strong> ${comparisons}<br>
-        <strong>Swaps:</strong> ${swaps}
-    `;
-}
-
-// ==========================
-// MERGE SORT
-// ==========================
-
-async function visualizeMergeSort() {
-
-    const arr = getInputArray();
-
-    if (!arr) return;
-
-    resetStats();
-
-    renderBars(arr, mergeContainer);
-
-    const bars = mergeContainer.children;
-
+  function mergeSort(a) {
+    let comps = 0,
+      moves = 0;
     const start = performance.now();
-
-    async function mergeSort(startIndex, endIndex) {
-
-        if (startIndex >= endIndex) return;
-
-        const mid =
-            Math.floor((startIndex + endIndex) / 2);
-
-        await mergeSort(startIndex, mid);
-        await mergeSort(mid + 1, endIndex);
-
-        await merge(startIndex, mid, endIndex);
-    }
-
-    async function merge(startIndex, mid, endIndex) {
-
-        const left =
-            arr.slice(startIndex, mid + 1);
-
-        const right =
-            arr.slice(mid + 1, endIndex + 1);
-
-        let i = 0;
-        let j = 0;
-        let k = startIndex;
-
-        while (
-            i < left.length &&
-            j < right.length
-        ) {
-
-            comparisons++;
-
-            if (left[i] <= right[j]) {
-                arr[k] = left[i];
-                i++;
-            } else {
-                arr[k] = right[j];
-                j++;
-            }
-
-            bars[k].style.height =
-                `${arr[k]}px`;
-
-            bars[k].classList.add("active");
-
-            updateStats();
-
-            await sleep(120);
-
-            bars[k].classList.remove("active");
-
-            k++;
+    function merge(left, right) {
+      const res = [];
+      let i = 0,
+        j = 0;
+      while (i < left.length && j < right.length) {
+        comps++;
+        if (left[i] <= right[j]) {
+          res.push(left[i++]);
+          moves++;
+        } else {
+          res.push(right[j++]);
+          moves++;
         }
-
-        while (i < left.length) {
-
-            arr[k] = left[i];
-
-            bars[k].style.height =
-                `${arr[k]}px`;
-
-            i++;
-            k++;
-
-            await sleep(50);
-        }
-
-        while (j < right.length) {
-
-            arr[k] = right[j];
-
-            bars[k].style.height =
-                `${arr[k]}px`;
-
-            j++;
-            k++;
-
-            await sleep(50);
-        }
+      }
+      while (i < left.length) {
+        res.push(left[i++]);
+        moves++;
+      }
+      while (j < right.length) {
+        res.push(right[j++]);
+        moves++;
+      }
+      return res;
     }
-
-    await mergeSort(0, arr.length - 1);
-
-    for (let bar of bars) {
-
-        bar.classList.add("sorted");
-
-        await sleep(30);
+    function ms(arr) {
+      if (arr.length <= 1) return arr.slice();
+      const m = Math.floor(arr.length / 2);
+      const L = ms(arr.slice(0, m));
+      const R = ms(arr.slice(m));
+      return merge(L, R);
     }
+    const sorted = ms(a);
+    const time = performance.now() - start;
+    return { sorted, comparisons: comps, swaps: moves, time };
+  }
 
-    const end = performance.now();
-
-    executionTime.textContent =
-        `${(end - start).toFixed(2)} ms`;
-
-    mergeResult.innerHTML = `
-        <strong>Sorted Array:</strong><br>
-        ${arr.join(", ")}<br><br>
-
-        <strong>Complexity:</strong> O(n log n)<br>
-        <strong>Comparisons:</strong> ${comparisons}
-    `;
-}
-
-// ==========================
-// RESET
-// ==========================
-
-function resetVisualizer() {
-
-    bubbleContainer.innerHTML = "";
-    mergeContainer.innerHTML = "";
-
-    bubbleResult.textContent =
-        "Waiting for visualization...";
-
-    mergeResult.textContent =
-        "Waiting for visualization...";
-
-    resetStats();
-}
-
-// ==========================
-// DARK MODE
-// ==========================
-
-themeToggle.addEventListener("click", () => {
-
-    document.body.classList.toggle("light-mode");
-
-    if (
-        document.body.classList.contains(
-            "light-mode"
-        )
-    ) {
-        themeToggle.textContent =
-            "☀️ Light Mode";
+  combinedBtn.addEventListener("click", () => {
+    const arr = parseInput();
+    if (arr.length === 0) {
+      alert("Please provide or generate an array first.");
+      return;
+    }
+    arraySize.textContent = arr.length;
+    const m = mergeSort(arr);
+    let b;
+    if (arr.length > 3000) {
+      const runFull = confirm(
+        `Array size ${arr.length} — full Bubble Sort is O(n²) and may be very slow. Run full Bubble Sort? Cancel to run a sampled Bubble Sort on first 2000 elements.`,
+      );
+      if (runFull) {
+        b = bubbleSort(arr);
+      } else {
+        const sample = arr.slice(0, 2000);
+        b = bubbleSort(sample);
+        // indicate sampled result by prefixing sorted with note
+        b.sampled = true;
+        b.sampleSize = sample.length;
+      }
     } else {
-        themeToggle.textContent =
-            "🌙 Dark Mode";
+      b = bubbleSort(arr);
     }
+    comparisonCount.textContent = `${b.comparisons} / ${m.comparisons}`;
+    swapCount.textContent = `${b.swaps} / ${m.swaps}`;
+    executionTime.textContent = `Bubble: ${b.time.toFixed(3)} ms · Merge: ${m.time.toFixed(3)} ms`;
+    const bNote = b.sampled ? `(sampled ${b.sampleSize}) ` : "";
+    bubbleResult.textContent = `${bNote}Sorted: ${b.sorted.join(", ")} — comparisons: ${b.comparisons}, swaps: ${b.swaps}, time: ${b.time.toFixed(3)} ms`;
+    mergeResult.textContent = `Sorted: ${m.sorted.join(", ")} — comparisons: ${m.comparisons}, moves: ${m.swaps}, time: ${m.time.toFixed(3)} ms`;
+    if (bubbleTimeEl) bubbleTimeEl.textContent = `${b.time.toFixed(3)} ms`;
+    if (mergeTimeEl) mergeTimeEl.textContent = `${m.time.toFixed(3)} ms`;
+
+    // Determine best sort (primary: execution time, tiebreaker: comparisons, then swaps/moves)
+    const bestEl = document.getElementById("bestSort");
+    if (bestEl) {
+      let bestText = "";
+      if (b.sampled) {
+        bestText = `Merge Sort is recommended (Bubble Sort was sampled for performance).`;
+      } else {
+        if (b.time < m.time) {
+          bestText = `Bubble Sort is faster: ${b.time} ms vs ${m.time} ms`;
+        } else if (m.time < b.time) {
+          bestText = `Merge Sort is faster: ${m.time} ms vs ${b.time} ms`;
+        } else {
+          // times equal, compare comparisons
+          if (b.comparisons < m.comparisons)
+            bestText = `Bubble Sort wins on comparisons (${b.comparisons} vs ${m.comparisons})`;
+          else if (m.comparisons < b.comparisons)
+            bestText = `Merge Sort wins on comparisons (${m.comparisons} vs ${b.comparisons})`;
+          else {
+            if (b.swaps < m.swaps)
+              bestText = `Bubble Sort wins on swaps/moves (${b.swaps} vs ${m.swaps})`;
+            else if (m.swaps < b.swaps)
+              bestText = `Merge Sort wins on swaps/moves (${m.swaps} vs ${b.swaps})`;
+            else bestText = `Both algorithms show similar performance.`;
+          }
+        }
+      }
+      bestEl.textContent = bestText;
+    }
+  });
+
+  bubbleResult.textContent = "Waiting for results...";
+  mergeResult.textContent = "Waiting for results...";
 });
-
-// ==========================
-// EVENTS
-// ==========================
-
-generateBtn.addEventListener(
-    "click",
-    generateRandomArray
-);
-
-bubbleBtn.addEventListener(
-    "click",
-    visualizeBubbleSort
-);
-
-mergeBtn.addEventListener(
-    "click",
-    visualizeMergeSort
-);
-
-resetBtn.addEventListener(
-    "click",
-    resetVisualizer
-);
-
-// ==========================
-// INITIAL LOAD
-// ==========================
-
-generateRandomArray();
